@@ -80,7 +80,7 @@ export class NavigationEngine {
 
     const nodes = path
       .map((id) => getNodeById(id))
-      .filter((n): n is GraphNode => n !== null);
+      .filter((n): n is NonNullable<typeof n> => n !== null);
 
     if (nodes.length < 2) return '';
 

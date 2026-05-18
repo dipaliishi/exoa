@@ -17,7 +17,7 @@ export function RouteOverlay({ path, svgPath, exitNode }: RouteOverlayProps) {
 
   const pathNodes = path
     .map((id) => getNodeById(id))
-    .filter((n): n is GraphNode => n !== null);
+    .filter((n): n is NonNullable<typeof n> => n !== null);
 
   return (
     <g id="route-overlay">

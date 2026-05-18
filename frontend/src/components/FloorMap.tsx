@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { UserMarker } from './UserMarker';
 import { RouteOverlay } from './RouteOverlay';
@@ -26,7 +26,6 @@ export function FloorMap({ navState, routeSVGPath, isCalculating }: FloorMapProp
   const [svgContent, setSvgContent] = useState<string>('');
   const [svgLoaded, setSvgLoaded] = useState(false);
   const [viewBox, setViewBox] = useState<string>('0 0 1200 900');
-  const svgContainerRef = useRef<HTMLDivElement>(null);
   const {
     viewport,
     containerRef,

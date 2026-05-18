@@ -144,20 +144,22 @@ body {
 
 /* ===== Glass Card ===== */
 .glass-card {
-  background: rgba(17, 24, 39, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--color-exoa-border);
-  border-radius: 12px;
+  background: rgba(13, 20, 35, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(42, 53, 72, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card-glow {
-  background: rgba(17, 24, 39, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--color-exoa-accent-glow);
-  border-radius: 12px;
-  box-shadow: 0 0 30px var(--color-exoa-accent-glow);
+  background: rgba(239, 68, 68, 0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ===== SVG Map Styles ===== */
@@ -238,4 +240,39 @@ body {
 .btn-danger:hover {
   box-shadow: 0 4px 20px var(--color-exoa-danger-glow);
   transform: translateY(-1px);
+}
+
+/* ===== Ambient Grid & Radial Glows for Cinematic Dashboard ===== */
+.animated-grid {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ambient-red-glow {
+  background: radial-gradient(circle at 15% 35%, rgba(239, 68, 68, 0.07) 0%, transparent 55%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes slow-breathing {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.ambient-breathing-glow {
+  animation: slow-breathing 8s ease-in-out infinite;
 }
