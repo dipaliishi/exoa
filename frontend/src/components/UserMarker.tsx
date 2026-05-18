@@ -6,10 +6,6 @@ interface UserMarkerProps {
   label?: string;
 }
 
-/**
- * Animated user position marker displayed on the SVG map.
- * Shows a pulsing beacon effect at the current QR location.
- */
 export function UserMarker({ x, y, label }: UserMarkerProps) {
   return (
     <g>
@@ -19,98 +15,88 @@ export function UserMarker({ x, y, label }: UserMarkerProps) {
         cy={y}
         r={8}
         fill="none"
-        stroke="#3b82f6"
-        strokeWidth={2}
+        stroke="#2563eb"
+        strokeWidth={1.5}
         initial={{ r: 8, opacity: 0.8 }}
-        animate={{ r: 35, opacity: 0 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+        animate={{ r: 30, opacity: 0 }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
       />
       <motion.circle
         cx={x}
         cy={y}
         r={8}
         fill="none"
-        stroke="#3b82f6"
-        strokeWidth={1.5}
+        stroke="#2563eb"
+        strokeWidth={1}
         initial={{ r: 8, opacity: 0.6 }}
-        animate={{ r: 28, opacity: 0 }}
+        animate={{ r: 24, opacity: 0 }}
         transition={{
-          duration: 2,
+          duration: 1.8,
           repeat: Infinity,
           ease: 'easeOut',
-          delay: 0.5,
+          delay: 0.4,
         }}
       />
 
-      {/* Glow effect */}
+      {/* Ambient shadow/glow */}
       <circle
         cx={x}
         cy={y}
-        r={16}
-        fill="#3b82f6"
-        opacity={0.15}
-        filter="url(#userGlow)"
+        r={14}
+        fill="#2563eb"
+        opacity={0.1}
       />
 
-      {/* Main dot */}
+      {/* Main outer dot */}
       <motion.circle
         cx={x}
         cy={y}
-        r={8}
-        fill="#3b82f6"
+        r={7.5}
+        fill="#2563eb"
         stroke="#ffffff"
-        strokeWidth={2.5}
+        strokeWidth={2}
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-        style={{ filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.6))' }}
+        style={{ filter: 'drop-shadow(0 2px 4px rgba(37, 99, 235, 0.25))' }}
       />
 
       {/* Inner white dot */}
-      <circle cx={x} cy={y} r={3} fill="#ffffff" opacity={0.9} />
+      <circle cx={x} cy={y} r={2.5} fill="#ffffff" />
 
       {/* Label */}
       {label && (
         <motion.g
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
         >
+          {/* Capsule pill container */}
           <rect
-            x={x - 50}
-            y={y - 35}
-            width={100}
-            height={20}
-            rx={6}
-            fill="#1e293b"
-            stroke="#3b82f6"
+            x={x - 45}
+            y={y - 32}
+            width={90}
+            height={18}
+            rx={9}
+            fill="#ffffff"
+            stroke="#e2e8f0"
             strokeWidth={1}
-            opacity={0.9}
+            style={{ filter: 'drop-shadow(0 2px 4px rgba(15, 23, 42, 0.05))' }}
           />
           <text
             x={x}
-            y={y - 21}
+            y={y - 20}
             textAnchor="middle"
-            fill="#e2e8f0"
-            fontSize={9}
-            fontWeight={600}
+            fill="#0f172a"
+            fontSize={7.5}
+            fontWeight={700}
             fontFamily="Inter, sans-serif"
+            letterSpacing={0.2}
           >
             📍 YOU ARE HERE
           </text>
         </motion.g>
       )}
-
-      {/* SVG filter for glow */}
-      <defs>
-        <filter id="userGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="6" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
     </g>
   );
 }

@@ -9,18 +9,14 @@ export function QRManagementPanel() {
   const [selectedType, setSelectedType] = useState<string | 'all'>('all');
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // Filter nodes for printing and directory review
   const filteredNodes = useMemo(() => {
     return buildingGraph.nodes.filter((node) => {
-      // 1. Search Query Match
       const matchesSearch =
         node.id.toLowerCase().includes(search.toLowerCase()) ||
         (node.label && node.label.toLowerCase().includes(search.toLowerCase()));
 
-      // 2. Floor Filter
       const matchesFloor = selectedFloor === 'all' || node.floor === selectedFloor;
 
-      // 3. Node Type Filter
       let matchesType = false;
       if (selectedType === 'all') {
         matchesType = node.type === 'qr' || node.type === 'exit';
@@ -39,7 +35,6 @@ export function QRManagementPanel() {
     setIsPrinting(true);
 
     try {
-      // 1. Precompile QRs synchronously using Promises to avoid print render glitches
       const compiledNodes = await Promise.all(
         filteredNodes.map(async (node) => {
           try {
@@ -56,7 +51,6 @@ export function QRManagementPanel() {
         })
       );
 
-      // 2. Open new printer popup
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
         alert('Popup blocker prevented printing. Please allow popups for this site.');
@@ -64,7 +58,6 @@ export function QRManagementPanel() {
         return;
       }
 
-      // 3. Formulate grid items
       let cardsHtml = '';
       compiledNodes.forEach((n) => {
         const floorLabels = ['Ground Floor', 'First Floor', 'Second Floor', 'Third Floor'];
@@ -81,7 +74,6 @@ export function QRManagementPanel() {
         `;
       });
 
-      // 4. Inject styles and trigger print
       printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -204,12 +196,12 @@ export function QRManagementPanel() {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full font-sans text-white">
+    <div className="flex flex-col gap-6 w-full font-sans text-slate-800">
       {/* Control Console header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">QR Checkpoint Directory</h2>
-          <p className="text-[10px] text-[var(--color-exoa-text-dim)] uppercase tracking-wider font-semibold mt-1">
+          <h2 className="text-xl font-bold tracking-tight text-slate-900">QR Checkpoint Directory</h2>
+          <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">
             Displaying {filteredNodes.length} mapped check-points of {buildingGraph.nodes.length} total nodes
           </p>
         </div>
@@ -218,17 +210,17 @@ export function QRManagementPanel() {
         <button
           onClick={handlePrintRegistry}
           disabled={isPrinting || filteredNodes.length === 0}
-          className={`px-5 py-2.5 rounded-full border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold font-mono text-[9px] tracking-widest uppercase cursor-pointer transition-all flex items-center gap-2 ${
+          className={`px-5 py-2.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100/80 text-blue-600 font-bold text-[9px] tracking-wider uppercase cursor-pointer transition-all flex items-center gap-2 shadow-sm ${
             isPrinting ? 'opacity-70 cursor-not-allowed' : ''
           }`}
         >
           {isPrinting ? (
             <>
-              <div className="w-3 h-3 border-2 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
-              PRECOMPILING CARDS...
+              <div className="w-3 h-3 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+              Precompiling labels...
             </>
           ) : (
-            <>🖨️ PRINT LABEL SHEETS ({filteredNodes.length})</>
+            <>🖨️ Print Label Sheets ({filteredNodes.length})</>
           )}
         </button>
       </div>
@@ -237,24 +229,24 @@ export function QRManagementPanel() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
         {/* Search */}
         <div className="md:col-span-4 flex flex-col gap-2">
-          <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-            [ FILTER TEXT QUERY ]
+          <label className="block text-[9px] text-slate-400 font-sans font-bold uppercase tracking-wider">
+            Filter Text Query
           </label>
           <input
             type="text"
             placeholder="Search by Room label, ID, Floor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#0a0d1a] border border-white/[0.06] px-4 py-2.5 rounded-full text-xs font-medium focus:outline-none focus:border-red-500/50 shadow-inner placeholder-white/20"
+            className="w-full bg-slate-50 border border-slate-200 px-4.5 py-2.5 rounded-full text-xs font-semibold focus:outline-none focus:border-blue-500/50 shadow-inner placeholder-slate-400 text-slate-700 transition-all"
           />
         </div>
 
         {/* Floor Level Filter */}
         <div className="md:col-span-4 flex flex-col gap-2">
-          <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-            [ FLOOR CATEGORY ]
+          <label className="block text-[9px] text-slate-400 font-sans font-bold uppercase tracking-wider">
+            Floor Category
           </label>
-          <div className="flex bg-[#0a0d1a] border border-white/[0.06] rounded-full p-1 w-full justify-between gap-1 select-none">
+          <div className="flex bg-slate-50 border border-slate-200 rounded-full p-1 w-full justify-between gap-1 select-none">
             {['ALL', 'GF', '1F', '2F', '3F'].map((label) => {
               const val = label === 'ALL' ? 'all' : label === 'GF' ? 0 : label === '1F' ? 1 : label === '2F' ? 2 : 3;
               const active = selectedFloor === val;
@@ -262,8 +254,8 @@ export function QRManagementPanel() {
                 <button
                   key={label}
                   onClick={() => setSelectedFloor(val)}
-                  className={`flex-grow py-1 rounded-full text-[9px] font-bold font-mono tracking-wider cursor-pointer transition-all ${
-                    active ? 'bg-red-500 text-white' : 'text-white/40 hover:text-white/70'
+                  className={`flex-grow py-1 rounded-full text-[9px] font-bold tracking-wider cursor-pointer transition-all ${
+                    active ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {label}
@@ -275,10 +267,10 @@ export function QRManagementPanel() {
 
         {/* Node Type Filter */}
         <div className="md:col-span-4 flex flex-col gap-2">
-          <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-            [ COMPONENT CLASSIFICATION ]
+          <label className="block text-[9px] text-slate-400 font-sans font-bold uppercase tracking-wider">
+            Component Classification
           </label>
-          <div className="flex bg-[#0a0d1a] border border-white/[0.06] rounded-full p-1 w-full justify-between gap-1 select-none">
+          <div className="flex bg-slate-50 border border-slate-200 rounded-full p-1 w-full justify-between gap-1 select-none">
             {['ALL', 'CHECKPOINTS', 'EXITS'].map((label) => {
               const val = label === 'ALL' ? 'all' : label === 'CHECKPOINTS' ? 'qr' : 'exit';
               const active = selectedType === val;
@@ -286,8 +278,8 @@ export function QRManagementPanel() {
                 <button
                   key={label}
                   onClick={() => setSelectedType(val)}
-                  className={`flex-grow py-1 rounded-full text-[9px] font-bold font-mono tracking-wider cursor-pointer transition-all ${
-                    active ? 'bg-red-500 text-white' : 'text-white/40 hover:text-white/70'
+                  className={`flex-grow py-1 rounded-full text-[9px] font-bold tracking-wider cursor-pointer transition-all ${
+                    active ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {label}

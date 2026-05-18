@@ -1,40 +1,40 @@
 @import "tailwindcss";
 
-/* ===== EXOA Emergency Navigation Design System ===== */
+/* ===== EXOA Emergency Navigation Light Design System ===== */
 
 @theme {
-  --color-exoa-bg: #0a0e1a;
-  --color-exoa-surface: #111827;
-  --color-exoa-surface-2: #1a2234;
-  --color-exoa-surface-3: #243044;
-  --color-exoa-border: #2a3548;
-  --color-exoa-border-glow: #3b82f620;
+  --color-exoa-bg: #f8fafc;
+  --color-exoa-surface: #ffffff;
+  --color-exoa-surface-2: #f1f5f9;
+  --color-exoa-surface-3: #e2e8f0;
+  --color-exoa-border: #e2e8f0;
+  --color-exoa-border-glow: rgba(37, 99, 235, 0.08);
   
-  --color-exoa-text: #e2e8f0;
-  --color-exoa-text-muted: #94a3b8;
+  --color-exoa-text: #0f172a;
+  --color-exoa-text-muted: #475569;
   --color-exoa-text-dim: #64748b;
   
-  --color-exoa-accent: #3b82f6;
-  --color-exoa-accent-glow: #3b82f640;
-  --color-exoa-accent-hover: #60a5fa;
+  --color-exoa-accent: #2563eb;
+  --color-exoa-accent-glow: rgba(37, 99, 235, 0.12);
+  --color-exoa-accent-hover: #1d4ed8;
   
   --color-exoa-danger: #ef4444;
-  --color-exoa-danger-glow: #ef444440;
-  --color-exoa-danger-surface: #991b1b20;
+  --color-exoa-danger-glow: rgba(239, 68, 68, 0.12);
+  --color-exoa-danger-surface: #fee2e2;
   
-  --color-exoa-warning: #f59e0b;
-  --color-exoa-warning-glow: #f59e0b40;
+  --color-exoa-warning: #f97316;
+  --color-exoa-warning-glow: rgba(249, 115, 22, 0.12);
   
-  --color-exoa-success: #22c55e;
-  --color-exoa-success-glow: #22c55e40;
+  --color-exoa-success: #10b981;
+  --color-exoa-success-glow: rgba(16, 185, 129, 0.12);
   
-  --color-exoa-route: #f97316;
-  --color-exoa-route-glow: #f9731660;
+  --color-exoa-route: #2563eb;
+  --color-exoa-route-glow: rgba(37, 99, 235, 0.20);
   
-  --color-exoa-node-qr: #facc15;
-  --color-exoa-node-exit: #ef4444;
-  --color-exoa-node-stair: #3b82f6;
-  --color-exoa-node-lift: #22c55e;
+  --color-exoa-node-qr: #eab308;
+  --color-exoa-node-exit: #dc2626;
+  --color-exoa-node-stair: #2563eb;
+  --color-exoa-node-lift: #10b981;
   
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -58,7 +58,7 @@ body {
   background: var(--color-exoa-bg);
   color: var(--color-exoa-text);
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 #root {
@@ -74,11 +74,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-exoa-surface);
+  background: var(--color-exoa-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-exoa-border);
+  background: var(--color-exoa-surface-3);
   border-radius: 3px;
 }
 
@@ -89,7 +89,7 @@ body {
 /* ===== Glow Animations ===== */
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  50% { opacity: 0.9; }
 }
 
 @keyframes route-dash {
@@ -98,12 +98,12 @@ body {
 
 @keyframes beacon-pulse {
   0% { r: 8; opacity: 0.8; }
-  100% { r: 30; opacity: 0; }
+  100% { r: 25; opacity: 0; }
 }
 
 @keyframes marker-bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-4px); }
 }
 
 @keyframes shimmer {
@@ -112,54 +112,60 @@ body {
 }
 
 @keyframes emergency-flash {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 2.5s ease-in-out infinite;
 }
 
 .animate-route-dash {
-  animation: route-dash 1.5s linear infinite;
+  animation: route-dash 1.8s linear infinite;
 }
 
 .animate-beacon {
-  animation: beacon-pulse 1.5s ease-out infinite;
+  animation: beacon-pulse 1.8s ease-out infinite;
 }
 
 .animate-marker-bounce {
-  animation: marker-bounce 1.5s ease-in-out infinite;
+  animation: marker-bounce 1.8s ease-in-out infinite;
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
 }
 
 .animate-emergency-flash {
-  animation: emergency-flash 1s ease-in-out infinite;
+  animation: emergency-flash 1.2s ease-in-out infinite;
 }
 
-/* ===== Glass Card ===== */
+/* ===== Elegant UI Containers ===== */
 .glass-card {
-  background: rgba(13, 20, 35, 0.55);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(42, 53, 72, 0.45);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(203, 213, 225, 1);
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
 }
 
 .glass-card-glow {
-  background: rgba(239, 68, 68, 0.04);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(254, 242, 242, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px -2px rgba(239, 68, 68, 0.06);
+  transition: all 0.2s ease;
 }
 
 /* ===== SVG Map Styles ===== */
@@ -182,7 +188,7 @@ body {
   stroke-linejoin: round;
   stroke-dasharray: 20 20;
   animation: route-dash 1.5s linear infinite;
-  filter: drop-shadow(0 0 6px var(--color-exoa-route-glow));
+  filter: drop-shadow(0 2px 4px var(--color-exoa-route-glow));
 }
 
 .route-path-bg {
@@ -191,63 +197,64 @@ body {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.4;
-  filter: blur(4px);
+  opacity: 0.25;
+  filter: blur(3px);
 }
 
 /* ===== Emergency Banner ===== */
 .emergency-banner {
   background: linear-gradient(90deg, 
     var(--color-exoa-danger-surface), 
-    rgba(239, 68, 68, 0.15),
+    rgba(254, 226, 226, 0.7),
     var(--color-exoa-danger-surface)
   );
   border-bottom: 1px solid var(--color-exoa-danger);
-  box-shadow: 0 2px 20px var(--color-exoa-danger-glow);
+  box-shadow: 0 2px 12px var(--color-exoa-danger-glow);
 }
 
-/* ===== Button Styles ===== */
+/* ===== Reusable Buttons ===== */
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-exoa-accent), #2563eb);
+  background: var(--color-exoa-accent);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-weight: 600;
+  border-radius: 9999px;
+  padding: 8px 20px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 10px var(--color-exoa-accent-glow);
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-exoa-accent-hover), #3b82f6);
-  box-shadow: 0 4px 20px var(--color-exoa-accent-glow);
+  background: var(--color-exoa-accent-hover);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
   transform: translateY(-1px);
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, var(--color-exoa-danger), #dc2626);
+  background: var(--color-exoa-danger);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-weight: 600;
+  border-radius: 9999px;
+  padding: 8px 20px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 10px var(--color-exoa-danger-glow);
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
 .btn-danger:hover {
-  box-shadow: 0 4px 20px var(--color-exoa-danger-glow);
+  background: #dc2626;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
   transform: translateY(-1px);
 }
 
-/* ===== Ambient Grid & Radial Glows for Cinematic Dashboard ===== */
+/* ===== Ambient Grid & Radial Glows ===== */
 .animated-grid {
-  background-size: 50px 50px;
+  background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.012) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.012) 1px, transparent 1px);
   position: absolute;
   top: 0;
   left: 0;
@@ -258,7 +265,7 @@ body {
 }
 
 .ambient-red-glow {
-  background: radial-gradient(circle at 15% 35%, rgba(239, 68, 68, 0.07) 0%, transparent 55%);
+  background: radial-gradient(circle at 15% 35%, rgba(239, 68, 68, 0.02) 0%, transparent 55%);
   position: absolute;
   top: 0;
   left: 0;
@@ -269,8 +276,8 @@ body {
 }
 
 @keyframes slow-breathing {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
 }
 
 .ambient-breathing-glow {

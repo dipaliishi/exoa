@@ -36,69 +36,69 @@ export function EmergencyStats({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-2 gap-x-8 gap-y-10"
+      className="grid grid-cols-2 gap-x-8 gap-y-8"
     >
-      {/* Current Node */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
-        <span className="text-[9px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase">
-          [ 01 / CURRENT LOCATION ]
+      {/* Current Location */}
+      <motion.div variants={itemVariants} className="flex flex-col gap-1">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase">
+          01 / Current Location
         </span>
-        <span className="text-2xl font-semibold tracking-tight text-white truncate">
+        <span className="text-xl font-bold tracking-tight text-slate-900 truncate">
           {currentNode?.label || 'Not Detected'}
         </span>
-        <span className="text-[9px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider mt-0.5">
+        <span className="text-[9px] font-mono text-slate-400 font-medium mt-0.5">
           ID: {currentNode?.id || '—'}
         </span>
       </motion.div>
 
-      {/* Current Floor */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
-        <span className="text-[9px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase">
-          [ 02 / ACTIVE LEVEL ]
+      {/* Active Floor */}
+      <motion.div variants={itemVariants} className="flex flex-col gap-1">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase">
+          02 / Active Level
         </span>
-        <span className="text-2xl font-semibold tracking-tight text-white">
+        <span className="text-xl font-bold tracking-tight text-slate-900">
           {currentNode !== null
             ? currentNode.floor === 0
               ? 'Ground Floor'
               : `Level ${currentNode.floor}`
             : 'Level 1'}
         </span>
-        <span className="text-[9px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider mt-0.5">
+        <span className="text-[9px] font-mono text-slate-400 font-medium mt-0.5">
           Surveillance Active
         </span>
       </motion.div>
 
       {/* Exit Distance */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
-        <span className="text-[9px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase">
-          [ 03 / ROUTE GAP ]
+      <motion.div variants={itemVariants} className="flex flex-col gap-1">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase">
+          03 / Route Gap
         </span>
         {isCalculating ? (
-          <div className="h-8 w-24 bg-white/5 animate-pulse rounded-md mt-1" />
+          <div className="h-6 w-20 bg-slate-100 animate-pulse rounded-md mt-1" />
         ) : (
-          <span className="text-2xl font-semibold tracking-tight text-red-400 font-mono">
+          <span className="text-xl font-bold tracking-tight text-red-600 font-mono">
             {distance > 0 ? `${distance} units` : 'No route'}
           </span>
         )}
-        <span className="text-[9px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider mt-0.5 truncate">
+        <span className="text-[9px] font-sans text-slate-400 font-semibold mt-0.5 truncate">
           Target: {targetExit?.label || '—'}
         </span>
       </motion.div>
 
       {/* Est. Evacuation Time */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
-        <span className="text-[9px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase">
-          [ 04 / EST. EVAC TIME ]
+      <motion.div variants={itemVariants} className="flex flex-col gap-1">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase">
+          04 / Est. Evac Time
         </span>
         {isCalculating ? (
-          <div className="h-8 w-24 bg-white/5 animate-pulse rounded-md mt-1" />
+          <div className="h-6 w-20 bg-slate-100 animate-pulse rounded-md mt-1" />
         ) : (
-          <span className="text-2xl font-semibold tracking-tight text-amber-500 font-mono">
+          <span className="text-xl font-bold tracking-tight text-amber-600 font-mono">
             {formattedTime !== 'N/A' ? formattedTime : '—'}
           </span>
         )}
-        <span className="text-[9px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider mt-0.5">
-          Speed Constant: 1.4m/s
+        <span className="text-[9px] font-sans text-slate-400 font-semibold mt-0.5">
+          Constant Speed
         </span>
       </motion.div>
     </motion.div>

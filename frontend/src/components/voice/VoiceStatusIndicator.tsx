@@ -20,15 +20,15 @@ export function VoiceStatusIndicator() {
   if (!settings.enabled) return null;
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full select-none">
+    <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200/60 rounded-full select-none shadow-sm">
       {/* Mini pulsing audio waves */}
-      <div className="flex items-end gap-0.5 h-2.5 w-3.5">
+      <div className="flex items-end gap-0.5 h-2.5 w-3">
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-[2px] bg-red-500 rounded-full"
+            className="w-[2px] bg-blue-600 rounded-full"
             animate={{
-              height: ['20%', '100%', '20%'],
+              height: ['30%', '100%', '30%'],
             }}
             transition={{
               duration: 0.6,
@@ -39,10 +39,11 @@ export function VoiceStatusIndicator() {
           />
         ))}
       </div>
-      <span className="text-[8px] font-mono font-bold tracking-widest text-red-500 uppercase">
+      <span className="text-[9px] font-sans font-bold text-blue-700 uppercase tracking-tight">
         Voice Active
       </span>
     </div>
   );
 }
+
 export default VoiceStatusIndicator;

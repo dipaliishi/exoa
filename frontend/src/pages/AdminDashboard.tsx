@@ -50,7 +50,6 @@ export function AdminDashboard() {
   useEffect(() => {
     websocketService.connect();
 
-    // Fetch initial active alerts
     sosService.getActiveSOS().then((alerts) => {
       setActiveSOSAlerts(alerts);
     });
@@ -128,11 +127,9 @@ export function AdminDashboard() {
   };
 
   const handleBlockEdge = async (fromId: string, toId: string) => {
-    // 1. Local update
     navigationEngine.blockEdge(fromId, toId);
     addLog(`Block corridor action initiated: ${fromId} ↔ ${toId}`, 'warning');
     
-    // 2. REST API update
     try {
       const base = getApiBase();
       const res = await fetch(`${base}/api/block-edge?from_id=${fromId}&to_id=${toId}`, {
@@ -149,11 +146,9 @@ export function AdminDashboard() {
   };
 
   const handleUnblockEdge = async (fromId: string, toId: string) => {
-    // 1. Local update
     navigationEngine.unblockEdge(fromId, toId);
     addLog(`Unblock corridor action initiated: ${fromId} ↔ ${toId}`, 'info');
     
-    // 2. REST API update
     try {
       const base = getApiBase();
       const res = await fetch(`${base}/api/unblock-edge?from_id=${fromId}&to_id=${toId}`, {
@@ -171,7 +166,6 @@ export function AdminDashboard() {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Accept simple passcode '1234' or 'admin' or empty to prevent lockouts during tests
     if (passcode === '1234' || passcode === 'admin' || passcode === '') {
       setIsAuthenticated(true);
       addLog('Passcode verified. Level Alpha access granted.', 'success');
@@ -192,7 +186,6 @@ export function AdminDashboard() {
     }, 6000);
   };
 
-  // Find dummy node for FloorMap view level rendering
   const getDummyNodeForFloor = (floor: number) => {
     if (floor === 0) return 'G_QR_01';
     if (floor === 2) return 'S_QR_01';
@@ -200,7 +193,6 @@ export function AdminDashboard() {
     return 'QR_01';
   };
 
-  // Mock navigation state for floor visualization
   const activeDummyNode = getDummyNodeForFloor(floorLevel);
   const adminNavState = {
     currentNodeId: activeDummyNode,
@@ -214,22 +206,21 @@ export function AdminDashboard() {
   const totalBlockedCount = buildingGraph.edges.filter((e) => e.blocked).length;
 
   return (
-    <div className="min-h-screen bg-[#070913] text-white flex flex-col relative overflow-hidden font-sans">
-      {/* Background Animated Grid & Radial Glows */}
-      <div className="animated-grid" />
-      <div className="ambient-red-glow ambient-breathing-glow animate-pulse" />
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden font-sans">
+      {/* Background Grids */}
+      <div className="animated-grid opacity-40" />
 
       {/* Top Navbar */}
-      <header className="z-40 w-full px-8 py-4 flex items-center justify-between border-b border-white/[0.03] bg-[#070913]/30 backdrop-blur-xl relative">
-        <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => navigate('/')}>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-amber-600 flex items-center justify-center shadow-lg shadow-red-500/10">
-            <span className="text-white font-extrabold text-base tracking-tighter">EX</span>
+      <header className="z-40 w-full px-6 py-4.5 flex items-center justify-between border-b border-slate-200/60 bg-white/65 backdrop-blur-md relative">
+        <div className="flex items-center gap-2 cursor-pointer select-none" onClick={() => navigate('/')}>
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/25">
+            <span className="text-white font-extrabold text-sm tracking-tighter">EX</span>
           </div>
           <div>
-            <span className="text-[11px] font-black tracking-widest uppercase text-white block">
+            <span className="text-xs font-extrabold tracking-tight text-slate-950 block">
               EXOA ADMIN
             </span>
-            <span className="text-[8px] text-[var(--color-exoa-text-dim)] uppercase tracking-widest font-bold">
+            <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block -mt-0.5">
               Operations Control Center
             </span>
           </div>
@@ -237,7 +228,7 @@ export function AdminDashboard() {
 
         <button
           onClick={() => navigate('/')}
-          className="btn-primary py-1.5 px-4 text-[9px] tracking-widest uppercase font-bold bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full shadow-none transition-all"
+          className="px-4 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[10px] font-bold tracking-wider uppercase shadow-sm transition-all cursor-pointer"
         >
           <span>EXIT COMMAND</span>
         </button>
@@ -250,55 +241,55 @@ export function AdminDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#070913]/95 backdrop-blur-2xl flex items-center justify-center p-6"
+            className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6"
           >
             <motion.div
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 100 }}
-              className="max-w-md w-full glass-card p-8 border border-white/[0.04] bg-white/[0.01] flex flex-col gap-6"
+              className="max-w-md w-full bg-white p-8 border border-slate-200 shadow-xl rounded-2xl flex flex-col gap-6"
             >
-              <div className="text-center flex flex-col gap-2 border-b border-white/[0.06] pb-4">
-                <span className="text-[9px] font-mono tracking-widest text-red-500 font-bold uppercase">
-                  🚨 SECURE ENCRYPTION ACCESS POINT
+              <div className="text-center flex flex-col gap-1 pb-4 border-b border-slate-100">
+                <span className="text-[9px] font-sans font-bold tracking-wider text-rose-600 bg-rose-50 border border-rose-100/50 py-1 px-3 rounded-full mx-auto">
+                  🚨 Secure Encryption Access Point
                 </span>
-                <h2 className="text-2xl font-bold tracking-tight text-white mt-1">
+                <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-3">
                   Operations Privilege
                 </h2>
-                <p className="text-[10px] text-[var(--color-exoa-text-dim)] uppercase tracking-widest font-bold mt-1">
-                  Authorization Level: ALPHA REQUIRED
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mt-1">
+                  Authorization Level: Alpha Required
                 </p>
               </div>
 
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-                    [ ENTER SECURITY PASSCODE ]
+                  <label className="block text-[9px] text-slate-400 font-sans font-bold uppercase tracking-wider">
+                    Enter Security Passcode
                   </label>
                   <input
                     type="password"
                     placeholder="Enter control passcode..."
                     value={passcode}
                     onChange={(e) => setPasscode(e.target.value)}
-                    className="w-full bg-[#0a0d1a] text-white border border-white/[0.06] px-4 py-3 rounded-full text-xs font-semibold focus:outline-none focus:border-red-500/50 shadow-inner tracking-widest text-center"
+                    className="w-full bg-slate-50 text-slate-800 border border-slate-200 px-4 py-3 rounded-full text-xs font-semibold focus:outline-none focus:border-blue-500 shadow-inner text-center tracking-widest"
                     autoFocus
                   />
-                  <p className="text-[8px] text-center text-[var(--color-exoa-text-dim)] uppercase tracking-wider font-semibold opacity-80 mt-1">
+                  <p className="text-[8px] text-center text-slate-400 uppercase font-semibold mt-1.5">
                     Tip: Press Enter or submit empty password to log in directly.
                   </p>
                 </div>
 
                 {authError && (
-                  <div className="text-[9px] text-red-400 font-mono font-bold text-center tracking-wide uppercase border border-red-500/10 bg-red-500/[0.01] py-2 rounded-lg">
+                  <div className="text-[9px] text-rose-600 font-sans font-bold text-center tracking-wide uppercase border border-rose-200 bg-rose-50 py-2 rounded-xl">
                     ⚠️ {authError}
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white font-bold text-[9px] tracking-widest uppercase rounded-full shadow-md cursor-pointer transition-all border border-red-400/20"
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[9px] tracking-wider uppercase rounded-full shadow-md cursor-pointer transition-all border border-transparent"
                 >
-                  AUTHENTICATE SECURE LINK
+                  Authenticate Secure Link
                 </button>
               </form>
             </motion.div>
@@ -308,7 +299,7 @@ export function AdminDashboard() {
 
       {/* Main Admin Console Layout */}
       {isAuthenticated && (
-        <main className="flex-grow p-8 flex flex-col gap-8 max-w-[1600px] w-full mx-auto z-10 relative">
+        <main className="flex-grow p-6 lg:p-8 flex flex-col gap-8 max-w-[1500px] w-full mx-auto z-10 relative items-start">
           
           {/* Top telemetry metrics row */}
           <SystemMetrics
@@ -319,43 +310,43 @@ export function AdminDashboard() {
           />
 
           {/* Dashboard Navigation Tabs */}
-          <div className="flex border-b border-white/[0.06] pb-2 gap-6 select-none">
+          <div className="flex border-b border-slate-200 w-full pb-2 gap-6 select-none">
             <button
               onClick={() => setActiveTab('radar')}
-              className={`pb-2 text-[10px] font-mono tracking-widest uppercase cursor-pointer transition-all ${
+              className={`pb-2 text-[10px] font-sans font-bold tracking-wider uppercase cursor-pointer transition-all ${
                 activeTab === 'radar'
-                  ? 'text-red-500 border-b-2 border-red-500 font-bold'
-                  : 'text-white/40 hover:text-white/80'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              [ 🚨 OPERATIONS RADAR ]
+              🚨 Operations Radar
             </button>
             <button
               onClick={() => setActiveTab('qr')}
-              className={`pb-2 text-[10px] font-mono tracking-widest uppercase cursor-pointer transition-all ${
+              className={`pb-2 text-[10px] font-sans font-bold tracking-wider uppercase cursor-pointer transition-all ${
                 activeTab === 'qr'
-                  ? 'text-red-500 border-b-2 border-red-500 font-bold'
-                  : 'text-white/40 hover:text-white/80'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              [ 📷 QR CODE REGISTRY ]
+              📷 QR Code Registry
             </button>
           </div>
 
           {activeTab === 'radar' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
               
               {/* Left: Hazard Controls & Logs */}
-              <div className="lg:col-span-5 flex flex-col gap-8 w-full">
+              <div className="lg:col-span-5 flex flex-col gap-6 w-full">
                 {/* Floor Switch Selector */}
-                <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
-                  <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-                    [ SWITCH SURVEILLANCE FLOOR LEVEL ]
+                <div className="glass-card p-5.5 border border-slate-200 bg-white shadow-sm rounded-2xl flex flex-col gap-4">
+                  <label className="block text-[9px] text-slate-400 font-sans font-bold uppercase tracking-wider">
+                    Switch Surveillance Floor Level
                   </label>
                   <select
                     value={floorLevel}
                     onChange={(e) => setFloorLevel(parseInt(e.target.value))}
-                    className="w-full bg-[#0a0d1a] text-white border border-white/[0.06] px-4 py-3 rounded-full text-xs font-semibold focus:outline-none focus:border-red-500/50 shadow-inner cursor-pointer appearance-none tracking-wide"
+                    className="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-full text-xs font-semibold focus:outline-none focus:border-blue-500/50 shadow-sm cursor-pointer tracking-wide appearance-none text-slate-700"
                   >
                     <option value={0}>Ground Floor (GF)</option>
                     <option value={1}>Floor Level 1 (1F)</option>
@@ -373,21 +364,21 @@ export function AdminDashboard() {
                 />
 
                 {/* Emergency broadcast simulator */}
-                <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
-                  <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-                    [ SIMULATE EMERGENCY BROADCAST OVERRIDE ]
+                <div className="glass-card p-5.5 border border-slate-200 bg-white shadow-sm rounded-2xl flex flex-col gap-4">
+                  <label className="block text-[9px] text-slate-400 font-sans font-bold uppercase tracking-wider">
+                    Simulate Emergency Broadcast Override
                   </label>
                   <form onSubmit={handleBroadcastSubmit} className="flex gap-3">
                     <input
                       type="text"
-                      placeholder="Type safety alert message to broadcast..."
+                      placeholder="Type safety alert message..."
                       value={broadcastText}
                       onChange={(e) => setBroadcastText(e.target.value)}
-                      className="flex-grow bg-[#0a0d1a] text-white border border-white/[0.06] px-4.5 py-2.5 rounded-full text-xs font-medium focus:outline-none focus:border-red-500/50 shadow-inner"
+                      className="flex-grow bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-full text-xs font-semibold focus:outline-none focus:border-blue-500/50 shadow-inner placeholder-slate-400 text-slate-700"
                     />
                     <button
                       type="submit"
-                      className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white font-bold text-[9px] tracking-widest uppercase rounded-full shadow-md cursor-pointer transition-all border border-red-400/20"
+                      className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[9px] tracking-wider uppercase rounded-full shadow-sm cursor-pointer transition-all border border-transparent"
                     >
                       SEND
                     </button>
@@ -403,30 +394,30 @@ export function AdminDashboard() {
               </div>
 
               {/* Right: Map and Logging console */}
-              <div className="lg:col-span-7 flex flex-col gap-8 w-full">
+              <div className="lg:col-span-7 flex flex-col gap-6 w-full">
                 
                 {/* Floor plan rendering */}
                 <div
                   key={`${floorLevel}-${triggerRender}`}
-                  className="glass-card overflow-hidden border border-white/[0.04] bg-white/[0.01] flex flex-col h-[480px] xl:h-[580px] shadow-2xl relative"
+                  className="glass-card overflow-hidden border border-slate-200 bg-white flex flex-col h-[480px] xl:h-[580px] shadow-sm relative rounded-2xl"
                 >
                   {/* Map telemetry label overlays */}
-                  <div className="absolute top-6 left-6 z-20 flex items-center gap-2.5 pointer-events-none select-none">
-                    <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-red-400 tracking-widest uppercase">
-                      ADMIN ACTIVE GRAPH VIEW
+                  <div className="absolute top-6 left-6 z-20 flex items-center gap-2 pointer-events-none select-none">
+                    <div className="px-3 py-1.5 rounded-full border border-slate-200 bg-white/80 backdrop-blur-md text-[9px] font-sans font-bold text-slate-800 tracking-wider uppercase shadow-sm">
+                      🛡️ Admin Active Graph
                     </div>
-                    <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-white tracking-widest uppercase">
-                      LEVEL {floorLevel}
-                    </div>
-                  </div>
-
-                  <div className="absolute top-6 right-6 z-20 pointer-events-none select-none">
-                    <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-[var(--color-exoa-text-dim)] tracking-widest uppercase">
-                      DRAG PAN • ZOOM ACTIVE
+                    <div className="px-3 py-1.5 rounded-full border border-slate-200 bg-white/80 backdrop-blur-md text-[9px] font-sans font-bold text-blue-600 tracking-wider uppercase shadow-sm">
+                      Level {floorLevel === 0 ? 'Ground' : floorLevel}
                     </div>
                   </div>
 
-                  <div className="flex-grow relative bg-[#070913]">
+                  <div className="absolute top-6 right-6 z-20 pointer-events-none select-none hidden sm:block">
+                    <div className="px-3 py-1.5 rounded-full border border-slate-200 bg-white/80 backdrop-blur-md text-[9px] font-sans font-semibold text-slate-500 tracking-tight shadow-sm">
+                      Drag to Pan • Zoom Active
+                    </div>
+                  </div>
+
+                  <div className="flex-grow relative bg-slate-50">
                     <FloorMap
                       navState={selectedAlert ? {
                         currentNodeId: selectedAlert.current_node,
@@ -452,13 +443,13 @@ export function AdminDashboard() {
                 />
 
                 {/* Logs Console Feed */}
-                <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
-                  <div className="border-b border-white/[0.06] pb-3 flex items-center justify-between">
-                    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[var(--color-exoa-text-muted)]">
+                <div className="glass-card p-5.5 border border-slate-200 bg-white shadow-sm rounded-2xl flex flex-col gap-4">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-800">
                       📜 Real-Time Security Operations Log
                     </h3>
-                    <span className="text-[8px] font-mono font-bold text-green-400 tracking-widest uppercase">
-                      SURVEILLANCE STABLE
+                    <span className="text-[9px] font-sans font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100/50">
+                      Surveillance Stable
                     </span>
                   </div>
 
@@ -467,7 +458,7 @@ export function AdminDashboard() {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-3 border border-red-500/20 bg-red-500/[0.02] rounded-xl text-center text-[10px] font-bold text-red-400 tracking-widest uppercase animate-pulse"
+                      className="p-3 border border-red-200 bg-red-50 rounded-xl text-center text-[10px] font-bold text-red-700 tracking-wide uppercase animate-pulse"
                     >
                       ⚠️ {broadcastLog}
                     </motion.div>
@@ -479,16 +470,16 @@ export function AdminDashboard() {
                         key={index}
                         className="flex items-start gap-3 text-[10px] font-mono leading-relaxed"
                       >
-                        <span className="text-[var(--color-exoa-text-dim)]">[{log.timestamp}]</span>
+                        <span className="text-slate-400">[{log.timestamp}]</span>
                         <span
                           className={
                             log.type === 'success'
-                              ? 'text-green-400'
+                              ? 'text-emerald-600 font-bold'
                               : log.type === 'warning'
-                              ? 'text-amber-400'
+                              ? 'text-amber-600 font-bold'
                               : log.type === 'error'
-                              ? 'text-red-400'
-                              : 'text-white/70'
+                              ? 'text-rose-600 font-bold'
+                              : 'text-slate-650'
                           }
                         >
                           {log.message}
@@ -501,7 +492,7 @@ export function AdminDashboard() {
 
             </div>
           ) : (
-            <div className="glass-card p-8 border border-white/[0.04] bg-white/[0.01] shadow-2xl w-full">
+            <div className="glass-card p-8 border border-slate-200 bg-white shadow-sm w-full rounded-2xl">
               <QRManagementPanel />
             </div>
           )}
@@ -509,10 +500,10 @@ export function AdminDashboard() {
       )}
 
       {/* Cinematic Operations Footer */}
-      <footer className="z-40 border-t border-white/[0.03] bg-[#070913]/90 backdrop-blur-md py-4 px-8 text-center text-[9px] text-[var(--color-exoa-text-dim)] font-mono tracking-widest select-none">
-        <div className="max-w-[1600px] w-full mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>EXOA ADMIN v2.0 • OPERATIONS LINK SECURE</span>
-          <span>WEBSOCKET LINK STATUS: {wsStatus.toUpperCase()}</span>
+      <footer className="z-40 border-t border-slate-200/60 bg-white/60 backdrop-blur-md py-4 px-6 text-center text-[9px] text-slate-400 font-mono tracking-widest select-none">
+        <div className="max-w-[1500px] w-full mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>EXOA ADMIN v3.0 • OPERATIONS LINK SECURE</span>
+          <span className="text-slate-450 font-bold">WEBSOCKET: {wsStatus.toUpperCase()}</span>
           <span>© 2026 EXOA OPERATIONS NETWORK</span>
         </div>
       </footer>

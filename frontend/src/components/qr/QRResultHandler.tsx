@@ -19,63 +19,64 @@ export function QRResultHandler({ successNode, scanError, onReset }: QRResultHan
       className="w-full sm:max-w-md mx-auto"
     >
       {successNode && (
-        <div className="glass-card p-5 border border-green-500/20 bg-green-500/[0.01] rounded-2xl flex flex-col gap-4 text-center items-center">
+        <div className="glass-card p-5 border border-emerald-250 bg-emerald-50/50 rounded-2xl flex flex-col gap-4 text-center items-center">
           {/* Animated success radar icon */}
-          <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center relative">
-            <span className="text-green-400 text-lg select-none">✓</span>
-            <div className="absolute inset-0 rounded-full border border-green-500/40 animate-ping opacity-25" />
+          <div className="w-11 h-11 rounded-full bg-emerald-100 border border-emerald-200/80 flex items-center justify-center relative">
+            <span className="text-emerald-600 text-sm select-none">✓</span>
+            <div className="absolute inset-0 rounded-full border border-emerald-400/40 animate-ping opacity-25" />
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] font-mono tracking-widest text-green-500 font-bold uppercase">
-              CHECKPOINT ALIGNMENT LOCKED
+            <span className="text-[9px] font-sans font-bold tracking-wider text-emerald-600 uppercase">
+              Checkpoint Alignment Locked
             </span>
-            <h4 className="text-sm font-bold text-white mt-1">
+            <h4 className="text-sm font-bold text-slate-900 mt-1">
               {successNode.label || successNode.id}
             </h4>
-            <span className="text-[9px] text-[var(--color-exoa-text-dim)] uppercase tracking-wider font-semibold opacity-90">
+            <span className="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">
               Level {successNode.floor} — {floorNames[successNode.floor] || 'Corridor Area'}
             </span>
           </div>
 
-          <p className="text-[10px] text-green-400/80 leading-relaxed font-semibold uppercase tracking-wider">
-            ⚡ Evacuation routing activated. Finding safe exits...
+          <p className="text-[10px] text-emerald-700 leading-relaxed font-semibold uppercase tracking-wide">
+            Evacuation routing activated. Finding safe exits...
           </p>
 
           <button
             onClick={onReset}
-            className="w-full py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 font-bold font-mono text-[9px] tracking-widest uppercase rounded-full cursor-pointer transition-all mt-2"
+            className="w-full py-2 bg-emerald-100/80 hover:bg-emerald-200/80 text-emerald-700 font-bold text-[9px] tracking-wider uppercase rounded-full cursor-pointer transition-all border border-emerald-200/50"
           >
-            [ RE-SCAN NEW LOCATION ]
+            Re-scan New Location
           </button>
         </div>
       )}
 
       {scanError && (
-        <div className="glass-card p-5 border border-red-500/20 bg-red-500/[0.01] rounded-2xl flex flex-col gap-4 text-center items-center">
+        <div className="glass-card p-5 border border-red-250 bg-red-50/50 rounded-2xl flex flex-col gap-4 text-center items-center">
           {/* Danger warning icon */}
-          <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center">
-            <span className="text-red-400 text-lg select-none">⚠</span>
+          <div className="w-11 h-11 rounded-full bg-red-100 border border-red-200/80 flex items-center justify-center">
+            <span className="text-red-500 text-sm select-none">⚠</span>
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] font-mono tracking-widest text-red-500 font-bold uppercase">
-              PHYSICAL QR SIGNAL ERROR
+            <span className="text-[9px] font-sans font-bold tracking-wider text-red-500 uppercase">
+              Physical QR Signal Error
             </span>
-            <p className="text-[10px] text-[var(--color-exoa-text-dim)] leading-relaxed mt-1.5 opacity-90 max-w-[260px]">
+            <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-1.5 max-w-[260px]">
               {scanError}
             </p>
           </div>
 
           <button
             onClick={onReset}
-            className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold font-mono text-[9px] tracking-widest uppercase rounded-full cursor-pointer transition-all mt-2"
+            className="w-full py-2 bg-red-100/80 hover:bg-red-200/80 text-red-700 font-bold text-[9px] tracking-wider uppercase rounded-full cursor-pointer transition-all border border-red-200/50"
           >
-            [ RETRY CHECKPOINT SCAN ]
+            Retry Checkpoint Scan
           </button>
         </div>
       )}
     </motion.div>
   );
 }
+
 export default QRResultHandler;

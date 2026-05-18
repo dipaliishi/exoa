@@ -36,59 +36,59 @@ export function SystemMetrics({
       className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full"
     >
       {/* Network link state */}
-      <motion.div variants={itemVariants} className="glass-card p-5 border-white/[0.04] bg-white/[0.01]">
-        <span className="text-[8px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase block">
-          [ 01 / LINK LINK STATUS ]
+      <motion.div variants={itemVariants} className="glass-card p-5 border border-slate-200 bg-white shadow-sm rounded-2xl">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase block">
+          01 / Link Status
         </span>
-        <span className={`text-xl font-bold font-mono tracking-tight block mt-2 ${
-          wsStatus === 'connected' ? 'text-green-400' : wsStatus === 'connecting' ? 'text-amber-400' : 'text-red-400'
+        <span className={`text-xl font-bold font-sans tracking-tight block mt-2 ${
+          wsStatus === 'connected' ? 'text-emerald-600' : wsStatus === 'connecting' ? 'text-amber-600' : 'text-rose-600'
         }`}>
-          {wsStatus.toUpperCase()}
+          {wsStatus === 'connected' ? 'Live Connection' : wsStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
         </span>
-        <span className="text-[8px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider block mt-1">
+        <span className="text-[9px] font-mono text-slate-400 font-medium block mt-1">
           Socket Stream Active
         </span>
       </motion.div>
 
       {/* Corridor hazards block */}
-      <motion.div variants={itemVariants} className="glass-card p-5 border-white/[0.04] bg-white/[0.01]">
-        <span className="text-[8px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase block">
-          [ 02 / ACTIVE HAZARDS ]
+      <motion.div variants={itemVariants} className="glass-card p-5 border border-slate-200 bg-white shadow-sm rounded-2xl">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase block">
+          02 / Active Hazards
         </span>
-        <span className={`text-xl font-bold font-mono tracking-tight block mt-2 ${
-          blockedCount > 0 ? 'text-red-400' : 'text-green-400'
+        <span className={`text-xl font-bold font-sans tracking-tight block mt-2 ${
+          blockedCount > 0 ? 'text-rose-600' : 'text-emerald-600'
         }`}>
-          {blockedCount} BLOCKAGES
+          {blockedCount} Blocked Paths
         </span>
-        <span className="text-[8px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider block mt-1">
-          Obstructed Vertices
+        <span className="text-[9px] font-mono text-slate-400 font-medium block mt-1">
+          Obstructed Corridors
         </span>
       </motion.div>
 
       {/* Simulated User routes active */}
-      <motion.div variants={itemVariants} className="glass-card p-5 border-white/[0.04] bg-white/[0.01]">
-        <span className="text-[8px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase block">
-          [ 03 / SIMULATED USERS ]
+      <motion.div variants={itemVariants} className="glass-card p-5 border border-slate-200 bg-white shadow-sm rounded-2xl">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase block">
+          03 / Simulated Users
         </span>
-        <span className="text-xl font-bold font-mono tracking-tight text-white block mt-2">
-          {simulatedUsers} PATHWAYS
+        <span className="text-xl font-bold font-sans tracking-tight text-slate-900 block mt-2">
+          {simulatedUsers} Active
         </span>
-        <span className="text-[8px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider block mt-1">
+        <span className="text-[9px] font-mono text-slate-400 font-medium block mt-1">
           Estimated Active Pings
         </span>
       </motion.div>
 
       {/* System security threat state */}
-      <motion.div variants={itemVariants} className="glass-card p-5 border-white/[0.04] bg-white/[0.01]">
-        <span className="text-[8px] font-mono tracking-widest text-[var(--color-exoa-text-dim)] uppercase block">
-          [ 04 / EXOA SYSTEM STATE ]
+      <motion.div variants={itemVariants} className="glass-card p-5 border border-slate-200 bg-white shadow-sm rounded-2xl">
+        <span className="text-[9px] font-sans font-bold tracking-wider text-slate-400 uppercase block">
+          04 / Safety Index
         </span>
-        <span className={`text-xl font-bold font-mono tracking-tight block mt-2 ${
-          systemStatus === 'evacuation' ? 'text-red-400 animate-pulse' : systemStatus === 'alert' ? 'text-amber-400' : 'text-blue-400'
+        <span className={`text-xl font-bold font-sans tracking-tight block mt-2 uppercase ${
+          systemStatus === 'evacuation' ? 'text-rose-600 animate-pulse font-extrabold' : systemStatus === 'alert' ? 'text-amber-600 font-extrabold' : 'text-blue-600'
         }`}>
-          {systemStatus.toUpperCase()}
+          {systemStatus === 'evacuation' ? '🚨 EMERGENCY' : systemStatus === 'alert' ? '⚠️ WARNING' : '🛡️ NORMAL'}
         </span>
-        <span className="text-[8px] font-mono text-[var(--color-exoa-text-dim)] uppercase tracking-wider block mt-1">
+        <span className="text-[9px] font-mono text-slate-400 font-medium block mt-1">
           Safety Security Index
         </span>
       </motion.div>

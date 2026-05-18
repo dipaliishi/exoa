@@ -13,12 +13,10 @@ export function VoiceControlPanel() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
-    // Subscribe to voice settings updates
     const unsubscribe = voiceGuidanceService.addListener((updatedSettings) => {
       setSettings(updatedSettings);
     });
 
-    // Load available voices
     const timer = setTimeout(() => {
       setVoices(voiceGuidanceService.getVoices());
     }, 500);
@@ -54,7 +52,6 @@ export function VoiceControlPanel() {
     const voiceName = e.target.value;
     setSettings((prev) => ({ ...prev, voiceName }));
     voiceGuidanceService.updateSettings({ voiceName });
-    // Speak test using the new voice
     setTimeout(() => {
       voiceGuidanceService.speak("Voice guidance active.", true);
     }, 100);
@@ -67,7 +64,7 @@ export function VoiceControlPanel() {
       <div className="fixed bottom-40 right-6 z-50">
         <button
           disabled
-          className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center cursor-not-allowed opacity-50 shadow-lg"
+          className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center cursor-not-allowed opacity-50 shadow-md"
           title="Browser Speech API not supported"
         >
           🔇
@@ -84,35 +81,35 @@ export function VoiceControlPanel() {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="w-72 glass-card p-5 border border-white/[0.06] bg-[#070913]/95 backdrop-blur-2xl shadow-2xl rounded-2xl flex flex-col gap-4 text-white"
+            className="w-72 glass-card p-5 border border-slate-200 bg-white/95 backdrop-blur-md shadow-lg rounded-2xl flex flex-col gap-4 text-slate-800"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-red-500">🔊 SYSTEM VOICE</span>
+            <div className="flex items-center justify-between border-b border-slate-150 pb-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-900">🔊 Voice Guidance</span>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-[10px] text-white/40 hover:text-white/80 cursor-pointer uppercase tracking-wider font-semibold font-mono"
+                className="text-[10px] text-slate-400 hover:text-slate-700 cursor-pointer font-bold uppercase tracking-wider"
               >
-                [ Close ]
+                Close
               </button>
             </div>
 
             {/* Toggle Switch */}
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--color-exoa-text-dim)]">
+              <span className="text-xs font-semibold text-slate-600">
                 Voice Alerts
               </span>
               <button
                 onClick={handleToggle}
-                className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${
-                  settings.enabled ? 'bg-red-500' : 'bg-white/10'
+                className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors ${
+                  settings.enabled ? 'bg-blue-600' : 'bg-slate-200'
                 }`}
               >
                 <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transition-transform ${
-                    settings.enabled ? 'translate-x-6' : 'translate-x-0'
+                  className={`bg-white w-4 h-4 rounded-full shadow-sm transition-transform ${
+                    settings.enabled ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
               </button>
@@ -126,14 +123,14 @@ export function VoiceControlPanel() {
                 className="flex flex-col gap-3.5 overflow-hidden"
               >
                 {/* Voice Selector */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[8px] font-mono font-bold uppercase tracking-widest text-[var(--color-exoa-text-dim)]">
-                    [ VOICE TYPE ]
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-sans font-bold uppercase tracking-wider text-slate-400">
+                    Voice Type
                   </label>
                   <select
                     value={settings.voiceName}
                     onChange={handleVoiceChange}
-                    className="w-full bg-[#0a0d1a] border border-white/[0.06] rounded-lg px-3 py-2 text-[10px] font-medium text-white/90 focus:outline-none focus:border-red-500/50 cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="">Default System Voice</option>
                     {voices.map((v) => (
@@ -146,9 +143,9 @@ export function VoiceControlPanel() {
 
                 {/* Volume Slider */}
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between text-[8px] font-mono font-bold uppercase tracking-widest text-[var(--color-exoa-text-dim)]">
-                    <span>[ VOLUME ]</span>
-                    <span className="text-white/80">{Math.round(settings.volume * 100)}%</span>
+                  <div className="flex items-center justify-between text-[9px] font-sans font-bold uppercase tracking-wider text-slate-400">
+                    <span>Volume</span>
+                    <span className="text-slate-600 font-semibold">{Math.round(settings.volume * 100)}%</span>
                   </div>
                   <input
                     type="range"
@@ -157,15 +154,15 @@ export function VoiceControlPanel() {
                     step="0.05"
                     value={settings.volume}
                     onChange={handleVolumeChange}
-                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-red-500"
+                    className="w-full h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   />
                 </div>
 
                 {/* Speed Slider */}
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between text-[8px] font-mono font-bold uppercase tracking-widest text-[var(--color-exoa-text-dim)]">
-                    <span>[ SPEECH SPEED ]</span>
-                    <span className="text-white/80">{settings.rate.toFixed(1)}x</span>
+                  <div className="flex items-center justify-between text-[9px] font-sans font-bold uppercase tracking-wider text-slate-400">
+                    <span>Speech Speed</span>
+                    <span className="text-slate-600 font-semibold">{settings.rate.toFixed(1)}x</span>
                   </div>
                   <input
                     type="range"
@@ -174,7 +171,7 @@ export function VoiceControlPanel() {
                     step="0.1"
                     value={settings.rate}
                     onChange={handleRateChange}
-                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-red-500"
+                    className="w-full h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   />
                 </div>
               </motion.div>
@@ -186,12 +183,12 @@ export function VoiceControlPanel() {
       {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg border cursor-pointer transition-all ${
+        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md border cursor-pointer transition-all ${
           isOpen
-            ? 'bg-red-500 border-red-400 text-white'
+            ? 'bg-blue-600 border-blue-500 text-white shadow-blue-500/20'
             : settings.enabled
-            ? 'bg-[#0a0d1a]/90 border-red-500/30 text-red-500 hover:bg-[#0c0f1d] hover:border-red-500/50'
-            : 'bg-[#0a0d1a]/90 border-white/10 text-white/50 hover:bg-[#0c0f1d] hover:text-white'
+            ? 'bg-white border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300'
+            : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600'
         }`}
         title="Voice Guidance Settings"
       >

@@ -8,10 +8,6 @@ interface RouteOverlayProps {
   exitNode: GraphNode | null;
 }
 
-/**
- * Route overlay component that renders the navigation path on top of the SVG map.
- * Features animated dashed lines with glow effects.
- */
 export function RouteOverlay({ path, svgPath, exitNode }: RouteOverlayProps) {
   if (!svgPath || path.length < 2) return null;
 
@@ -47,9 +43,9 @@ export function RouteOverlay({ path, svgPath, exitNode }: RouteOverlayProps) {
               key={`waypoint-${node.id}`}
               cx={node.x}
               cy={node.y}
-              r={3}
-              fill="#f97316"
-              opacity={0.6}
+              r={2.5}
+              fill="#2563eb"
+              opacity={0.7}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.1 * i + 0.5 }}
@@ -68,29 +64,28 @@ export function RouteOverlay({ path, svgPath, exitNode }: RouteOverlayProps) {
             cy={exitNode.y}
             r={10}
             fill="none"
-            stroke="#22c55e"
-            strokeWidth={2}
+            stroke="#10b981"
+            strokeWidth={1.5}
             initial={{ r: 10, opacity: 0.8 }}
-            animate={{ r: 30, opacity: 0 }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+            animate={{ r: 25, opacity: 0 }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
           />
 
-          {/* Exit glow */}
+          {/* Exit ambient shadow */}
           <circle
             cx={exitNode.x}
             cy={exitNode.y}
-            r={14}
-            fill="#22c55e"
-            opacity={0.2}
-            filter="url(#exitGlow)"
+            r={12}
+            fill="#10b981"
+            opacity={0.12}
           />
 
-          {/* Exit marker */}
+          {/* Exit marker circle */}
           <motion.circle
             cx={exitNode.x}
             cy={exitNode.y}
-            r={10}
-            fill="#22c55e"
+            r={9}
+            fill="#10b981"
             stroke="#ffffff"
             strokeWidth={2}
             initial={{ scale: 0 }}
@@ -99,51 +94,52 @@ export function RouteOverlay({ path, svgPath, exitNode }: RouteOverlayProps) {
               type: 'spring',
               stiffness: 260,
               damping: 20,
-              delay: 1.2,
+              delay: 1,
             }}
-            style={{ filter: 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.6))' }}
+            style={{ filter: 'drop-shadow(0 2px 4px rgba(16, 185, 129, 0.25))' }}
           />
 
-          {/* Exit icon (arrow) */}
+          {/* Exit icon checkmark */}
           <motion.text
             x={exitNode.x}
-            y={exitNode.y + 4}
+            y={exitNode.y + 3.5}
             textAnchor="middle"
             fill="#ffffff"
-            fontSize={11}
-            fontWeight={700}
+            fontSize={10}
+            fontWeight={900}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
+            transition={{ delay: 1.2 }}
           >
             ✓
           </motion.text>
 
-          {/* Exit label */}
+          {/* Exit label pill */}
           <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3 }}
           >
             <rect
-              x={exitNode.x - 40}
-              y={exitNode.y + 16}
-              width={80}
-              height={18}
-              rx={5}
-              fill="#065f46"
-              stroke="#22c55e"
-              strokeWidth={0.8}
-              opacity={0.9}
+              x={exitNode.x - 35}
+              y={exitNode.y + 14}
+              width={70}
+              height={16}
+              rx={8}
+              fill="#ecfdf5"
+              stroke="#10b981"
+              strokeWidth={1}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(16, 185, 129, 0.05))' }}
             />
             <text
               x={exitNode.x}
-              y={exitNode.y + 29}
+              y={exitNode.y + 25}
               textAnchor="middle"
-              fill="#86efac"
-              fontSize={8}
-              fontWeight={600}
+              fill="#065f46"
+              fontSize={7.5}
+              fontWeight={700}
               fontFamily="Inter, sans-serif"
+              letterSpacing={0.2}
             >
               🚪 NEAREST EXIT
             </text>
@@ -165,31 +161,17 @@ export function RouteOverlay({ path, svgPath, exitNode }: RouteOverlayProps) {
               key={`arrow-${i}`}
               transform={`translate(${midX}, ${midY}) rotate(${angle})`}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.7 }}
+              animate={{ opacity: 0.8 }}
               transition={{ delay: 0.8 + i * 0.1 }}
             >
               <polygon
-                points="0,-4 8,0 0,4"
-                fill="#f97316"
+                points="-1,-3 5,0 -1,3"
+                fill="#2563eb"
                 opacity={0.8}
               />
             </motion.g>
           );
         })}
-
-      {/* SVG filters */}
-      <defs>
-        <filter id="exitGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="8" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <filter id="routeGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="4" />
-        </filter>
-      </defs>
     </g>
   );
 }

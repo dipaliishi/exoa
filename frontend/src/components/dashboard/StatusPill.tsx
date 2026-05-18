@@ -8,33 +8,39 @@ interface StatusPillProps {
 export function StatusPill({ status }: StatusPillProps) {
   const configs = {
     connecting: {
-      color: 'bg-amber-400',
-      text: 'SYSTEM SCANNING',
+      dotColor: 'bg-amber-500',
+      textColor: 'text-amber-700',
+      bgColor: 'bg-amber-50 border-amber-200/60',
+      text: 'Scanning Network',
     },
     connected: {
-      color: 'bg-green-400',
-      text: 'LIVE CONNECTION',
+      dotColor: 'bg-emerald-500',
+      textColor: 'text-emerald-700',
+      bgColor: 'bg-emerald-50 border-emerald-200/60',
+      text: 'Live Connection',
     },
     disconnected: {
-      color: 'bg-red-400',
-      text: 'STANDBY MODE',
+      dotColor: 'bg-slate-400',
+      textColor: 'text-slate-600',
+      bgColor: 'bg-slate-50 border-slate-200/60',
+      text: 'Standby Mode',
     },
   };
 
   const current = configs[status];
 
   return (
-    <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-white/[0.04] bg-white/[0.02] backdrop-blur-md select-none">
+    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-sans font-semibold tracking-tight select-none shadow-sm ${current.bgColor}`}>
       <motion.div
-        className={`w-1.5 h-1.5 rounded-full ${current.color} shadow-[0_0_8px_rgba(255,255,255,0.2)]`}
+        className={`w-1.5 h-1.5 rounded-full ${current.dotColor}`}
         animate={
           status !== 'connected'
-            ? { opacity: [1, 0.3, 1] }
-            : { scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }
+            ? { opacity: [1, 0.4, 1] }
+            : { scale: [1, 1.2, 1], opacity: [1, 0.8, 1] }
         }
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <span className="text-[9px] font-mono font-semibold tracking-widest text-[var(--color-exoa-text-dim)] uppercase">
+      <span className={`${current.textColor}`}>
         {current.text}
       </span>
     </div>
