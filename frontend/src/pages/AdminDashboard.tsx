@@ -8,6 +8,10 @@ import { buildingGraph } from '../data/graphData';
 import { SystemMetrics } from '../components/admin/SystemMetrics';
 import { HazardControlPanel } from '../components/admin/HazardControlPanel';
 import { FloorMap } from '../components/FloorMap';
+import { sosService } from '../services/sosService';
+import type { SOSAlert } from '../types/sos';
+import { ActiveSOSPanel, EmergencyAlertFeed } from '../components/sos';
+import { QRManagementPanel } from '../components/admin/qr/QRManagementPanel';
 
 interface LogEntry {
   timestamp: string;
@@ -20,6 +24,7 @@ export function AdminDashboard() {
   const [passcode, setPasscode] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'radar' | 'qr'>('radar');
   
   // Floor and map states
   const [floorLevel, setFloorLevel] = useState<number>(1);
@@ -30,6 +35,11 @@ export function AdminDashboard() {
   const [broadcastText, setBroadcastText] = useState<string>('');
   const [broadcastLog, setBroadcastLog] = useState<string | null>(null);
 
+  // Emergency SOS states
+  const [activeSOSAlerts, setActiveSOSAlerts] = useState<SOSAlert[]>([]);
+  const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
+  const selectedAlert = activeSOSAlerts.find((a) => a.id === selectedAlertId) || null;
+
   // Administrative log feed
   const [logs, setLogs] = useState<LogEntry[]>([
     { timestamp: '23:02:11', message: 'EXOA Safety Console Core Initialized.', type: 'info' },
@@ -39,6 +49,12 @@ export function AdminDashboard() {
   // Connect websocket status listener
   useEffect(() => {
     websocketService.connect();
+
+    // Fetch initial active alerts
+    sosService.getActiveSOS().then((alerts) => {
+      setActiveSOSAlerts(alerts);
+    });
+
     const unsubscribe = websocketService.addStatusListener((status) => {
       setWsStatus(status);
       addLog(`WebSocket connection status updated: ${status.toUpperCase()}`, status === 'connected' ? 'success' : 'warning');
@@ -51,6 +67,21 @@ export function AdminDashboard() {
       } else if (data.type === 'edge_unblocked') {
         addLog(`External Unblock Event: Edge ${data.from} ↔ ${data.to} unblocked.`, 'success');
         setTriggerRender(prev => prev + 1);
+      } else if (data.type === 'sos_triggered') {
+        const newAlert = data.data;
+        setActiveSOSAlerts((prev) => [newAlert, ...prev.filter((a) => a.id !== newAlert.id)]);
+        addLog(`🚨 RED ALERT: Distress SOS signal triggered by ${newAlert.user_id} at Checkpoint ${newAlert.current_node} (Floor ${newAlert.current_floor})!`, 'error');
+        setFloorLevel(newAlert.current_floor);
+        setSelectedAlertId(newAlert.id);
+      } else if (data.type === 'sos_acknowledged') {
+        const ackAlert = data.data;
+        setActiveSOSAlerts((prev) => prev.map((a) => (a.id === ackAlert.id ? ackAlert : a)));
+        addLog(`⚠️ Admin response initiated for distress alert ID: ${ackAlert.id} (${ackAlert.user_id}).`, 'warning');
+      } else if (data.type === 'sos_resolved') {
+        const resAlert = data.data;
+        setActiveSOSAlerts((prev) => prev.filter((a) => a.id !== resAlert.id));
+        addLog(`✅ Distress alert resolved for ${resAlert.user_id} at Checkpoint ${resAlert.current_node}.`, 'success');
+        setSelectedAlertId((prev) => (prev === resAlert.id ? null : prev));
       }
     });
 
@@ -63,6 +94,28 @@ export function AdminDashboard() {
   const addLog = (message: string, type: 'info' | 'warning' | 'error' | 'success' = 'info') => {
     const time = new Date().toTimeString().split(' ')[0];
     setLogs((prev) => [{ timestamp: time, message, type }, ...prev]);
+  };
+
+  const handleAcknowledgeSOS = async (alertId: string) => {
+    try {
+      await sosService.acknowledgeSOS(alertId);
+    } catch (e) {
+      addLog(`Failed to send acknowledgment for SOS signal ${alertId}.`, 'error');
+    }
+  };
+
+  const handleResolveSOS = async (alertId: string) => {
+    try {
+      await sosService.resolveSOS(alertId);
+    } catch (e) {
+      addLog(`Failed to resolve SOS signal ${alertId}.`, 'error');
+    }
+  };
+
+  const handleSelectSOSAlert = (alert: SOSAlert) => {
+    setSelectedAlertId(alert.id);
+    setFloorLevel(alert.current_floor);
+    addLog(`Surveillance camera focused on check-point: ${alert.current_node} (Floor ${alert.current_floor}).`, 'info');
   };
 
   const getApiBase = () => {
@@ -265,141 +318,193 @@ export function AdminDashboard() {
             systemStatus={totalBlockedCount > 0 ? 'evacuation' : 'normal'}
           />
 
-          {/* Core admin operational panels grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {/* Left: Hazard Controls & Logs */}
-            <div className="lg:col-span-5 flex flex-col gap-8 w-full">
-              {/* Floor Switch Selector */}
-              <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
-                <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-                  [ SWITCH SURVEILLANCE FLOOR LEVEL ]
-                </label>
-                <select
-                  value={floorLevel}
-                  onChange={(e) => setFloorLevel(parseInt(e.target.value))}
-                  className="w-full bg-[#0a0d1a] text-white border border-white/[0.06] px-4 py-3 rounded-full text-xs font-semibold focus:outline-none focus:border-red-500/50 shadow-inner cursor-pointer appearance-none tracking-wide"
-                >
-                  <option value={0}>Ground Floor (GF)</option>
-                  <option value={1}>Floor Level 1 (1F)</option>
-                  <option value={2}>Floor Level 2 (2F)</option>
-                  <option value={3}>Floor Level 3 (3F)</option>
-                </select>
-              </div>
-
-              {/* Blocking / Unblocking actions */}
-              <HazardControlPanel
-                edges={buildingGraph.edges}
-                onBlock={handleBlockEdge}
-                onUnblock={handleUnblockEdge}
-                floor={floorLevel}
-              />
-
-              {/* Emergency broadcast simulator */}
-              <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
-                <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
-                  [ SIMULATE EMERGENCY BROADCAST OVERRIDE ]
-                </label>
-                <form onSubmit={handleBroadcastSubmit} className="flex gap-3">
-                  <input
-                    type="text"
-                    placeholder="Type safety alert message to broadcast..."
-                    value={broadcastText}
-                    onChange={(e) => setBroadcastText(e.target.value)}
-                    className="flex-grow bg-[#0a0d1a] text-white border border-white/[0.06] px-4.5 py-2.5 rounded-full text-xs font-medium focus:outline-none focus:border-red-500/50 shadow-inner"
-                  />
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white font-bold text-[9px] tracking-widest uppercase rounded-full shadow-md cursor-pointer transition-all border border-red-400/20"
-                  >
-                    SEND
-                  </button>
-                </form>
-              </div>
-            </div>
-
-            {/* Right: Map and Logging console */}
-            <div className="lg:col-span-7 flex flex-col gap-8 w-full">
-              
-              {/* Floor plan rendering */}
-              <div
-                key={`${floorLevel}-${triggerRender}`}
-                className="glass-card overflow-hidden border border-white/[0.04] bg-white/[0.01] flex flex-col h-[480px] xl:h-[580px] shadow-2xl relative"
-              >
-                {/* Map telemetry label overlays */}
-                <div className="absolute top-6 left-6 z-20 flex items-center gap-2.5 pointer-events-none select-none">
-                  <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-red-400 tracking-widest uppercase">
-                    ADMIN ACTIVE GRAPH VIEW
-                  </div>
-                  <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-white tracking-widest uppercase">
-                    LEVEL {floorLevel}
-                  </div>
-                </div>
-
-                <div className="absolute top-6 right-6 z-20 pointer-events-none select-none">
-                  <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-[var(--color-exoa-text-dim)] tracking-widest uppercase">
-                    DRAG PAN • ZOOM ACTIVE
-                  </div>
-                </div>
-
-                <div className="flex-grow relative bg-[#070913]">
-                  <FloorMap
-                    navState={adminNavState}
-                    routeSVGPath=""
-                    isCalculating={false}
-                  />
-                </div>
-              </div>
-
-              {/* Logs Console Feed */}
-              <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
-                <div className="border-b border-white/[0.06] pb-3 flex items-center justify-between">
-                  <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[var(--color-exoa-text-muted)]">
-                    📜 Real-Time Security Operations Log
-                  </h3>
-                  <span className="text-[8px] font-mono font-bold text-green-400 tracking-widest uppercase">
-                    SURVEILLANCE STABLE
-                  </span>
-                </div>
-
-                {/* Broadcast Banner indicator */}
-                {broadcastLog && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-3 border border-red-500/20 bg-red-500/[0.02] rounded-xl text-center text-[10px] font-bold text-red-400 tracking-widest uppercase animate-pulse"
-                  >
-                    ⚠️ {broadcastLog}
-                  </motion.div>
-                )}
-
-                <div className="flex flex-col gap-2 max-h-[140px] overflow-y-auto pr-1">
-                  {logs.map((log, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start gap-3 text-[10px] font-mono leading-relaxed"
-                    >
-                      <span className="text-[var(--color-exoa-text-dim)]">[{log.timestamp}]</span>
-                      <span
-                        className={
-                          log.type === 'success'
-                            ? 'text-green-400'
-                            : log.type === 'warning'
-                            ? 'text-amber-400'
-                            : log.type === 'error'
-                            ? 'text-red-400'
-                            : 'text-white/70'
-                        }
-                      >
-                        {log.message}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
+          {/* Dashboard Navigation Tabs */}
+          <div className="flex border-b border-white/[0.06] pb-2 gap-6 select-none">
+            <button
+              onClick={() => setActiveTab('radar')}
+              className={`pb-2 text-[10px] font-mono tracking-widest uppercase cursor-pointer transition-all ${
+                activeTab === 'radar'
+                  ? 'text-red-500 border-b-2 border-red-500 font-bold'
+                  : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              [ 🚨 OPERATIONS RADAR ]
+            </button>
+            <button
+              onClick={() => setActiveTab('qr')}
+              className={`pb-2 text-[10px] font-mono tracking-widest uppercase cursor-pointer transition-all ${
+                activeTab === 'qr'
+                  ? 'text-red-500 border-b-2 border-red-500 font-bold'
+                  : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              [ 📷 QR CODE REGISTRY ]
+            </button>
           </div>
+
+          {activeTab === 'radar' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left: Hazard Controls & Logs */}
+              <div className="lg:col-span-5 flex flex-col gap-8 w-full">
+                {/* Floor Switch Selector */}
+                <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
+                  <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
+                    [ SWITCH SURVEILLANCE FLOOR LEVEL ]
+                  </label>
+                  <select
+                    value={floorLevel}
+                    onChange={(e) => setFloorLevel(parseInt(e.target.value))}
+                    className="w-full bg-[#0a0d1a] text-white border border-white/[0.06] px-4 py-3 rounded-full text-xs font-semibold focus:outline-none focus:border-red-500/50 shadow-inner cursor-pointer appearance-none tracking-wide"
+                  >
+                    <option value={0}>Ground Floor (GF)</option>
+                    <option value={1}>Floor Level 1 (1F)</option>
+                    <option value={2}>Floor Level 2 (2F)</option>
+                    <option value={3}>Floor Level 3 (3F)</option>
+                  </select>
+                </div>
+
+                {/* Blocking / Unblocking actions */}
+                <HazardControlPanel
+                  edges={buildingGraph.edges}
+                  onBlock={handleBlockEdge}
+                  onUnblock={handleUnblockEdge}
+                  floor={floorLevel}
+                />
+
+                {/* Emergency broadcast simulator */}
+                <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
+                  <label className="block text-[8px] text-[var(--color-exoa-text-dim)] font-mono font-bold uppercase tracking-widest">
+                    [ SIMULATE EMERGENCY BROADCAST OVERRIDE ]
+                  </label>
+                  <form onSubmit={handleBroadcastSubmit} className="flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="Type safety alert message to broadcast..."
+                      value={broadcastText}
+                      onChange={(e) => setBroadcastText(e.target.value)}
+                      className="flex-grow bg-[#0a0d1a] text-white border border-white/[0.06] px-4.5 py-2.5 rounded-full text-xs font-medium focus:outline-none focus:border-red-500/50 shadow-inner"
+                    />
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white font-bold text-[9px] tracking-widest uppercase rounded-full shadow-md cursor-pointer transition-all border border-red-400/20"
+                    >
+                      SEND
+                    </button>
+                  </form>
+                </div>
+
+                {/* Real-time active emergency distress panel */}
+                <ActiveSOSPanel
+                  alerts={activeSOSAlerts}
+                  onSelectAlert={handleSelectSOSAlert}
+                  selectedAlertId={selectedAlertId}
+                />
+              </div>
+
+              {/* Right: Map and Logging console */}
+              <div className="lg:col-span-7 flex flex-col gap-8 w-full">
+                
+                {/* Floor plan rendering */}
+                <div
+                  key={`${floorLevel}-${triggerRender}`}
+                  className="glass-card overflow-hidden border border-white/[0.04] bg-white/[0.01] flex flex-col h-[480px] xl:h-[580px] shadow-2xl relative"
+                >
+                  {/* Map telemetry label overlays */}
+                  <div className="absolute top-6 left-6 z-20 flex items-center gap-2.5 pointer-events-none select-none">
+                    <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-red-400 tracking-widest uppercase">
+                      ADMIN ACTIVE GRAPH VIEW
+                    </div>
+                    <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-white tracking-widest uppercase">
+                      LEVEL {floorLevel}
+                    </div>
+                  </div>
+
+                  <div className="absolute top-6 right-6 z-20 pointer-events-none select-none">
+                    <div className="glass-card px-3 py-1.5 border-white/[0.04] bg-[#070913]/60 text-[9px] font-mono font-bold text-[var(--color-exoa-text-dim)] tracking-widest uppercase">
+                      DRAG PAN • ZOOM ACTIVE
+                    </div>
+                  </div>
+
+                  <div className="flex-grow relative bg-[#070913]">
+                    <FloorMap
+                      navState={selectedAlert ? {
+                        currentNodeId: selectedAlert.current_node,
+                        targetExitId: null,
+                        path: [],
+                        distance: 0,
+                        status: 'evacuation',
+                        isNavigating: true
+                      } : adminNavState}
+                      routeSVGPath=""
+                      isCalculating={false}
+                      activeSOSAlerts={activeSOSAlerts}
+                    />
+                  </div>
+                </div>
+
+                {/* Real-time Emergency SOS Alerts Feed */}
+                <EmergencyAlertFeed
+                  alerts={activeSOSAlerts}
+                  onAcknowledge={handleAcknowledgeSOS}
+                  onResolve={handleResolveSOS}
+                  onSelectAlert={handleSelectSOSAlert}
+                />
+
+                {/* Logs Console Feed */}
+                <div className="glass-card p-6 border-white/[0.04] bg-white/[0.01] flex flex-col gap-4">
+                  <div className="border-b border-white/[0.06] pb-3 flex items-center justify-between">
+                    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[var(--color-exoa-text-muted)]">
+                      📜 Real-Time Security Operations Log
+                    </h3>
+                    <span className="text-[8px] font-mono font-bold text-green-400 tracking-widest uppercase">
+                      SURVEILLANCE STABLE
+                    </span>
+                  </div>
+
+                  {/* Broadcast Banner indicator */}
+                  {broadcastLog && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-3 border border-red-500/20 bg-red-500/[0.02] rounded-xl text-center text-[10px] font-bold text-red-400 tracking-widest uppercase animate-pulse"
+                    >
+                      ⚠️ {broadcastLog}
+                    </motion.div>
+                  )}
+
+                  <div className="flex flex-col gap-2 max-h-[140px] overflow-y-auto pr-1">
+                    {logs.map((log, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 text-[10px] font-mono leading-relaxed"
+                      >
+                        <span className="text-[var(--color-exoa-text-dim)]">[{log.timestamp}]</span>
+                        <span
+                          className={
+                            log.type === 'success'
+                              ? 'text-green-400'
+                              : log.type === 'warning'
+                              ? 'text-amber-400'
+                              : log.type === 'error'
+                              ? 'text-red-400'
+                              : 'text-white/70'
+                          }
+                        >
+                          {log.message}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          ) : (
+            <div className="glass-card p-8 border border-white/[0.04] bg-white/[0.01] shadow-2xl w-full">
+              <QRManagementPanel />
+            </div>
+          )}
         </main>
       )}
 

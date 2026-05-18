@@ -6,11 +6,14 @@ import { ZoomControls } from './ZoomControls';
 import { useMapInteraction } from '../hooks/useMapInteraction';
 import { buildingGraph, getNodeById } from '../data/graphData';
 import type { GraphNode, NavigationState } from '../types';
+import { SOSMarker } from './sos/SOSMarker';
+import type { SOSAlert } from '../types/sos';
 
 interface FloorMapProps {
   navState: NavigationState;
   routeSVGPath: string;
   isCalculating: boolean;
+  activeSOSAlerts?: SOSAlert[];
 }
 
 /**
@@ -22,7 +25,7 @@ interface FloorMapProps {
  * - Exit indicators
  * - Interactive pan/zoom
  */
-export function FloorMap({ navState, routeSVGPath, isCalculating }: FloorMapProps) {
+export function FloorMap({ navState, routeSVGPath, isCalculating, activeSOSAlerts }: FloorMapProps) {
   const [svgContent, setSvgContent] = useState<string>('');
   const [svgLoaded, setSvgLoaded] = useState(false);
   const [viewBox, setViewBox] = useState<string>('0 0 1200 900');
@@ -165,6 +168,23 @@ export function FloorMap({ navState, routeSVGPath, isCalculating }: FloorMapProp
                 label={currentNode.label}
               />
             )}
+
+            {/* Render active SOS signals on this floor */}
+            {activeSOSAlerts &&
+              activeSOSAlerts
+                .filter((alert) => alert.current_floor === currentFloor)
+                .map((alert) => {
+                  const node = buildingGraph.nodes.find((n) => n.id === alert.current_node);
+                  if (!node) return null;
+                  return (
+                    <SOSMarker
+                      key={alert.id}
+                      x={node.x}
+                      y={node.y}
+                      status={alert.status as 'triggered' | 'acknowledged'}
+                    />
+                  );
+                })}
           </svg>
         </div>
       </div>

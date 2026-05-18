@@ -4,6 +4,8 @@ import { FloorMap } from '../components/FloorMap';
 import { EmergencyBanner } from '../components/EmergencyBanner';
 import { useNavigation } from '../hooks/useNavigation';
 import { getNodeById } from '../data/graphData';
+import { useSOS } from '../hooks/useSOS';
+import { SOSButton, SOSModal, SOSStatusIndicator } from '../components/sos';
 
 /**
  * NavigationPage — Main page for indoor emergency navigation.
@@ -12,6 +14,16 @@ import { getNodeById } from '../data/graphData';
 export function NavigationPage() {
   const { navState, isCalculating, routeSVGPath } = useNavigation();
   const navigate = useNavigate();
+
+  const {
+    status: sosStatus,
+    activeAlert: sosAlert,
+    cooldown: sosCooldown,
+    modalOpen: sosModalOpen,
+    setModalOpen: setSosModalOpen,
+    triggerSOS,
+    cancelLocalSOS,
+  } = useSOS();
 
   const currentNodeData = navState.currentNodeId
     ? getNodeById(navState.currentNodeId)
@@ -143,6 +155,17 @@ export function NavigationPage() {
         floor={currentNodeData?.floor}
       />
 
+      {/* SOS Active Indicator Banner */}
+      {sosStatus !== 'idle' && (
+        <div className="px-4 py-2 bg-[var(--color-exoa-bg)] border-b border-[var(--color-exoa-border)]">
+          <SOSStatusIndicator
+            alert={sosAlert}
+            localStatus={sosStatus}
+            onCancel={cancelLocalSOS}
+          />
+        </div>
+      )}
+
       {/* Floor Map */}
       <FloorMap
         navState={navState}
@@ -169,6 +192,26 @@ export function NavigationPage() {
             : 'Idle'}
         </span>
       </motion.footer>
+
+      {/* Floating emergency SOS system button and confirmation modal */}
+      <SOSButton
+        status={sosStatus}
+        cooldown={sosCooldown}
+        onClick={() => setSosModalOpen(true)}
+      />
+
+      <SOSModal
+        isOpen={sosModalOpen}
+        onClose={() => setSosModalOpen(false)}
+        onConfirm={(type) =>
+          triggerSOS(
+            navState.currentNodeId || 'QR_01',
+            currentNodeData?.floor || 1,
+            navState.status,
+            type
+          )
+        }
+      />
     </div>
   );
 }

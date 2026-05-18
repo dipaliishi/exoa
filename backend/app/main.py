@@ -23,6 +23,7 @@ from .models import (
     NodeInfo,
     EmergencyUpdate,
 )
+from .sos_manager import sos_manager, SOSAlertTrigger, SOSAlert
 
 app = FastAPI(
     title="EXOA Navigation API",
@@ -122,6 +123,52 @@ async def unblock_edge(from_id: str, to_id: str):
         "to": to_id,
     })
     return {"status": "unblocked", "from": from_id, "to": to_id}
+
+
+# ===== Emergency SOS System Endpoints =====
+
+@app.post("/api/sos/trigger", response_model=SOSAlert)
+async def trigger_sos(payload: SOSAlertTrigger):
+    """Trigger a live emergency distress signal."""
+    alert = sos_manager.trigger_alert(payload)
+    # Broadcast alert via websocket in real-time
+    await manager.broadcast({
+        "type": "sos_triggered",
+        "data": alert.model_dump()
+    })
+    return alert
+
+
+@app.post("/api/sos/acknowledge", response_model=Optional[SOSAlert])
+async def acknowledge_sos(alert_id: str):
+    """Acknowledge a live emergency distress signal."""
+    alert = sos_manager.acknowledge_alert(alert_id)
+    if alert:
+        await manager.broadcast({
+            "type": "sos_acknowledged",
+            "id": alert_id,
+            "data": alert.model_dump()
+        })
+    return alert
+
+
+@app.post("/api/sos/resolve", response_model=Optional[SOSAlert])
+async def resolve_sos(alert_id: str):
+    """Resolve a live emergency distress signal."""
+    alert = sos_manager.resolve_alert(alert_id)
+    if alert:
+        await manager.broadcast({
+            "type": "sos_resolved",
+            "id": alert_id,
+            "data": alert.model_dump()
+        })
+    return alert
+
+
+@app.get("/api/sos/active", response_model=list[SOSAlert])
+async def get_active_sos():
+    """Get all currently active distress signals."""
+    return sos_manager.get_active_alerts()
 
 
 # ===== WebSocket Endpoint =====
